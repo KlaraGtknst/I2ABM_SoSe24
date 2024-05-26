@@ -1,1 +1,4 @@
 I2ABM_venv/
+.idea/
+abmodel/.ipynb_checkpoints/
+abmodel/docs
