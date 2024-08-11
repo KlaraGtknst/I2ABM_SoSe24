@@ -1,12 +1,25 @@
 from mesa.visualization import JupyterViz
 from fire_evacuation.model import FireEvacuation
-from fire_evacuation.agent import Human, FireExit, Wall, Sight
+from fire_evacuation.agent import Human, Facilitator, FireExit, Wall, Sight
+import os
+
+current_dir = os.path.dirname(os.path.realpath(__file__))
 
 # Specify the parameters changeable by the user, in the web interface
 model_params = {
     # "seed":  mesa.visualization.Number
     #      name="Random seed", value=1
     # ),
+    "predictcrowd": {
+        "type": "Checkbox",
+        "value": False,
+        "label": "Crowd prediction when turning",
+    },
+    "random_spawn": {
+        "type": "Checkbox",
+        "value": True,
+        "label": "Random spawn of initial positions",
+    },
     "floor_size": {
         "type": "SliderInt",
         "value": 12,
@@ -62,21 +75,22 @@ model_params = {
 def agent_portrayal(agent):
     size = 1
     nervousness = None
-    
+    if type(agent) is Facilitator:
+        shape = os.path.join(current_dir, "fire_evacuation/resources/facilitator.png")
     if type(agent) is Human:
         nervousness = agent.nervousness
         if agent.nervousness > Human.NERVOUSNESS_PANIC_THRESHOLD:
-            shape = "fire_evacuation/resources/panicked_human.png"
+            shape = os.path.join(current_dir, "fire_evacuation/resources/panicked_human.png")
         elif agent.humantohelp is not None:
-            shape = "fire_evacuation/resources/cooperating_human.png"
+            shape = os.path.join(current_dir, "fire_evacuation/resources/cooperating_human.png")
         else:
-            shape = "fire_evacuation/resources/human.png"
+            shape = os.path.join(current_dir, "fire_evacuation/resources/human.png")
     if type(agent) is FireExit:
-        shape = "fire_evacuation/resources/fire_exit.png"
+        shape = os.path.join(current_dir, "fire_evacuation/resources/fire_exit.png")
     if type(agent) is Wall:
-        shape = "fire_evacuation/resources/wall.png"
+        shape = os.path.join(current_dir, "fire_evacuation/resources/wall.png")
     if type(agent) is Sight:
-        shape = "fire_evacuation/resources/eye.png"
+        shape = os.path.join(current_dir, "fire_evacuation/resources/eye.png")
         
     return {"size": size,
             "shape": shape,
@@ -120,10 +134,6 @@ def fire_evacuation_portrayal(agent):
     
     elif type(agent) is FireExit:
         portrayal["Shape"] = "fire_evacuation/resources/fire_exit.png"
-        portrayal["scale"] = 1
-        portrayal["Layer"] = 1
-    elif type(agent) is Door:
-        portrayal["Shape"] = "fire_evacuation/resources/door.png"
         portrayal["scale"] = 1
         portrayal["Layer"] = 1
     elif type(agent) is Wall:
